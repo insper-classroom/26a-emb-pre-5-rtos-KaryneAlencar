@@ -24,6 +24,7 @@ const int LED_PIN_R = 5;
 const int LED_PIN_Y = 10;
 
 QueueHandle_t xQueueBtn;
+
 SemaphoreHandle_t xSemaphore_r;
 SemaphoreHandle_t xSemaphore_y;
 //y = 2 r = 1
@@ -47,13 +48,23 @@ void led_1_task(void *p) {
     gpio_set_dir(LED_PIN_R, GPIO_OUT);
     gpio_put(LED_PIN_R, 0);
 
-    int delay = 100;
+    int ligado = 0;
+    
     while (true) {
+        int btn;
         if(xSemaphoreTake(xSemaphore_r, pdMS_TO_TICKS(500)) == pdTRUE){
-            gpio_put(LED_PIN_R, 1);
-            vTaskDelay(pdMS_TO_TICKS(delay));
+            ligado = !ligado;
+        }
+        if(!ligado){
             gpio_put(LED_PIN_R, 0);
-            vTaskDelay(pdMS_TO_TICKS(delay));
+        }
+        if(ligado){
+            gpio_put(LED_PIN_R, 1);
+            vTaskDelay(pdMS_TO_TICKS(100));
+            gpio_put(LED_PIN_R, 0);
+            vTaskDelay(pdMS_TO_TICKS(100));
+        }else {
+            vTaskDelay(pdMS_TO_TICKS(10));
         }
     }
 }
@@ -63,13 +74,22 @@ void led_2_task(void *p) {
     gpio_set_dir(LED_PIN_Y, GPIO_OUT);
     gpio_put(LED_PIN_Y, 0);
 
-    int delay = 100;
+    int ligado = 0;
     while (true) {
+        int btn;
         if(xSemaphoreTake(xSemaphore_y, pdMS_TO_TICKS(500)) == pdTRUE){
-            gpio_put(LED_PIN_Y, 1);
-            vTaskDelay(pdMS_TO_TICKS(delay));
+            ligado = !ligado;
+        }
+        if(!ligado){
             gpio_put(LED_PIN_Y, 0);
-            vTaskDelay(pdMS_TO_TICKS(delay));
+        }
+        if(ligado){
+            gpio_put(LED_PIN_Y, 1);
+            vTaskDelay(pdMS_TO_TICKS(100));
+            gpio_put(LED_PIN_Y, 0);
+            vTaskDelay(pdMS_TO_TICKS(100));
+        }else {
+            vTaskDelay(pdMS_TO_TICKS(10));
         }
     }
 }
@@ -101,6 +121,8 @@ int main() {
     gpio_set_dir(BTN_PIN_R, GPIO_IN);
     gpio_pull_up(BTN_PIN_R);
     //printf("Start RTOS \n");
+    xSemaphore_r = xSemaphoreCreateBinary();
+    xSemaphore_y = xSemaphoreCreateBinary();
 
     xQueueBtn = xQueueCreate(32, sizeof(int));
 
