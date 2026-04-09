@@ -15,6 +15,21 @@ const int LED_PIN_G = 6;
 SemaphoreHandle_t xSemaphore_r;
 SemaphoreHandle_t xSemaphore_g;
 
+QueueHandle_t xQueueBtn;
+
+void btn_callback(uint gpio, uint32_t events) {
+  int btn;
+  if(events == 0x4){
+    if(gpio == BTN_PIN_G){
+      btn = 1;
+    }
+    if(gpio == BTN_PIN_R){
+      btn = 2;
+    }
+  }
+  xQueueSendFromISR(xQueueBtn, &btn, 0);
+}
+
 void led_1_task(void *p) {
   gpio_init(LED_PIN_R);
   gpio_set_dir(LED_PIN_R, GPIO_OUT);
@@ -37,12 +52,12 @@ void btn_1_task(void *p) {
   gpio_set_dir(BTN_PIN_R, GPIO_IN);
   gpio_pull_up(BTN_PIN_R);
 
+  int btn;
   while (true) {
-    if (!gpio_get(BTN_PIN_R)) {
-      while (!gpio_get(BTN_PIN_R)) {
-        vTaskDelay(pdMS_TO_TICKS(1));
+    if (xQueueReceive( xQueueBtn, &btn, pdMS_TO_TICKS(100))){
+      if(btn == 2){
+        xSemaphoreGive(xSemaphore_r);
       }
-      xSemaphoreGive(xSemaphore_r);
     }
   }
 }
@@ -69,12 +84,12 @@ void btn_2_task(void *p) {
   gpio_set_dir(BTN_PIN_G, GPIO_IN);
   gpio_pull_up(BTN_PIN_G);
 
+  int btn;
   while (true) {
-    if (!gpio_get(BTN_PIN_G)) {
-      while (!gpio_get(BTN_PIN_G)) {
-        vTaskDelay(pdMS_TO_TICKS(1));
+    if (xQueueReceive( xQueueBtn, &btn, pdMS_TO_TICKS(100))){
+      if(btn == 1){
+        xSemaphoreGive(xSemaphore_g);
       }
-      xSemaphoreGive(xSemaphore_g);
     }
   }
 }
@@ -91,6 +106,8 @@ int main() {
 
   xTaskCreate(led_2_task, "LED_Task 2", 256, NULL, 1, NULL);
   xTaskCreate(btn_2_task, "BTN_Task 2", 256, NULL, 1, NULL);
+
+  xQueueBtn = xQueueCreate(32, sizeof(int) );
 
   vTaskStartScheduler();
 
