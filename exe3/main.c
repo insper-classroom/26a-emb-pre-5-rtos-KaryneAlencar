@@ -72,6 +72,12 @@ void led_2_task(void *p) {
 }
 
 void btn_task(void *p) {
+    gpio_init(BTN_PIN_G);
+    gpio_set_dir(BTN_PIN_G, GPIO_IN);
+    gpio_pull_up(BTN_PIN_G);
+    gpio_init(BTN_PIN_R);
+    gpio_set_dir(BTN_PIN_R, GPIO_IN);
+    gpio_pull_up(BTN_PIN_R);
     int delay_r = 0;
     int delay_g = 0;
     int btn;
@@ -104,13 +110,6 @@ void btn_task(void *p) {
 
 int main() {
     stdio_init_all();
-
-    gpio_init(BTN_PIN_G);
-    gpio_set_dir(BTN_PIN_G, GPIO_IN);
-    gpio_pull_up(BTN_PIN_G);
-    gpio_init(BTN_PIN_R);
-    gpio_set_dir(BTN_PIN_R, GPIO_IN);
-    gpio_pull_up(BTN_PIN_R);
     //printf("Start RTOS \n");
 
     xQueueBtn = xQueueCreate(32, sizeof(int));
