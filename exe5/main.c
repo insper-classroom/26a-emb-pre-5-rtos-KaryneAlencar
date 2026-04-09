@@ -29,7 +29,6 @@ SemaphoreHandle_t xSemaphoreLedR;
 SemaphoreHandle_t xSemaphoreLedY;
 //y = 2 r = 1
 void btn_callback(uint gpio, uint32_t events) {
-  int btn = 0;
   if(events == GPIO_IRQ_EDGE_FALL){
     if(gpio == BTN_PIN_Y){
       btn = 2;
@@ -51,7 +50,6 @@ void led_1_task(void *p) {
     int ligado = 0;
     
     while (true) {
-        int btn;
         if(xSemaphoreTake(xSemaphoreLedR, pdMS_TO_TICKS(500)) == pdTRUE){
             ligado = !ligado;
         }
