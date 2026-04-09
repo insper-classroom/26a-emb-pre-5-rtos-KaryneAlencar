@@ -23,7 +23,7 @@ void led_1_task(void *p) {
   }
 }
 
-void led_2_task(coid *p){
+void led_2_task(void *p){
   gpio_init(LED_PIN_G);
   gpio_set_dir(LED_PIN_G, GPIO_OUT);
 
