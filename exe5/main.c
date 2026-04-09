@@ -25,8 +25,8 @@ const int LED_PIN_Y = 10;
 
 QueueHandle_t xQueueBtn;
 
-SemaphoreHandle_t xSemaphore_r;
-SemaphoreHandle_t xSemaphore_y;
+SemaphoreHandle_t xSemaphoreLedR;
+SemaphoreHandle_t xSemaphoreLedY;
 //y = 2 r = 1
 void btn_callback(uint gpio, uint32_t events) {
   int btn = 0;
@@ -52,7 +52,7 @@ void led_1_task(void *p) {
     
     while (true) {
         int btn;
-        if(xSemaphoreTake(xSemaphore_r, pdMS_TO_TICKS(500)) == pdTRUE){
+        if(xSemaphoreTake(xSemaphoreLedR, pdMS_TO_TICKS(500)) == pdTRUE){
             ligado = !ligado;
         }
         if(!ligado){
@@ -77,7 +77,7 @@ void led_2_task(void *p) {
     int ligado = 0;
     while (true) {
         int btn;
-        if(xSemaphoreTake(xSemaphore_y, pdMS_TO_TICKS(500)) == pdTRUE){
+        if(xSemaphoreTake(xSemaphoreLedY, pdMS_TO_TICKS(500)) == pdTRUE){
             ligado = !ligado;
         }
         if(!ligado){
@@ -100,11 +100,11 @@ void btn_task(void *p) {
         if (xQueueReceive( xQueueBtn, &btn, pdMS_TO_TICKS(100))) {
 
             if(btn == 2){
-                xSemaphoreGive(xSemaphore_y);
+                xSemaphoreGive(xSemaphoreLedY);
             }
 
             if(btn == 1){
-                xSemaphoreGive(xSemaphore_r);
+                xSemaphoreGive(xSemaphoreLedR);
             }
             
         }
@@ -121,8 +121,8 @@ int main() {
     gpio_set_dir(BTN_PIN_R, GPIO_IN);
     gpio_pull_up(BTN_PIN_R);
     //printf("Start RTOS \n");
-    xSemaphore_r = xSemaphoreCreateBinary();
-    xSemaphore_y = xSemaphoreCreateBinary();
+    xSemaphoreLedR = xSemaphoreCreateBinary();
+    xSemaphoreLedY = xSemaphoreCreateBinary();
 
     xQueueBtn = xQueueCreate(32, sizeof(int));
 
