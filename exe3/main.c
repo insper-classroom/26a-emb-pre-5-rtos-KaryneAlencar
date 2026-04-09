@@ -18,7 +18,7 @@ QueueHandle_t xQueueBtn;
 
 void btn_callback(uint gpio, uint32_t events) {
   int btn = 0;
-  if(events == 0x4){
+  if(events == GPIO_IRQ_EDGE_FALL){
     if(gpio == BTN_PIN_G){
       btn = 2;
     }
@@ -34,11 +34,12 @@ void btn_callback(uint gpio, uint32_t events) {
 void led_1_task(void *p) {
     gpio_init(LED_PIN_R);
     gpio_set_dir(LED_PIN_R, GPIO_OUT);
+    gpio_put(LED_PIN_R, 0);
 
     int delay = 0;
     while (true) {
         if (xQueueReceive(xQueueLedR, &delay, 0)) {
-            printf("%d\n", delay);
+            //printf("%d\n", delay);
         }
 
         if (delay > 0) {
@@ -53,11 +54,12 @@ void led_1_task(void *p) {
 void led_2_task(void *p) {
     gpio_init(LED_PIN_G);
     gpio_set_dir(LED_PIN_G, GPIO_OUT);
+    gpio_put(LED_PIN_G, 0);
 
     int delay = 0;
     while (true) {
         if (xQueueReceive(xQueueLedG, &delay, 0)) {
-            printf("%d\n", delay);
+            //printf("%d\n", delay);
         }
 
         if (delay > 0) {
@@ -70,13 +72,6 @@ void led_2_task(void *p) {
 }
 
 void btn_task(void *p) {
-    gpio_init(BTN_PIN_G);
-    gpio_set_dir(BTN_PIN_G, GPIO_IN);
-    gpio_pull_up(BTN_PIN_G);
-    gpio_init(BTN_PIN_R);
-    gpio_set_dir(BTN_PIN_R, GPIO_IN);
-    gpio_pull_up(BTN_PIN_R);
-
     int delay_r = 0;
     int delay_g = 0;
     int btn;
@@ -89,7 +84,7 @@ void btn_task(void *p) {
                 } else {
                     delay_g = 100;
                 }
-                printf("delay btn %d \n", delay_g);
+                //printf("delay btn %d \n", delay_g);
                 xQueueSend(xQueueLedG, &delay_g, 0);
             }
 
@@ -99,7 +94,7 @@ void btn_task(void *p) {
                 } else {
                     delay_r = 100;
                 }
-                printf("delay btn %d \n", delay_r);
+                //printf("delay btn %d \n", delay_r);
                 xQueueSend(xQueueLedR, &delay_r, 0);
             }
             
@@ -109,7 +104,14 @@ void btn_task(void *p) {
 
 int main() {
     stdio_init_all();
-    printf("Start RTOS \n");
+
+    gpio_init(BTN_PIN_G);
+    gpio_set_dir(BTN_PIN_G, GPIO_IN);
+    gpio_pull_up(BTN_PIN_G);
+    gpio_init(BTN_PIN_R);
+    gpio_set_dir(BTN_PIN_R, GPIO_IN);
+    gpio_pull_up(BTN_PIN_R);
+    //printf("Start RTOS \n");
 
     xQueueBtn = xQueueCreate(32, sizeof(int));
     xQueueLedG = xQueueCreate(32, sizeof(int));
