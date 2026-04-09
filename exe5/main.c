@@ -29,17 +29,18 @@ SemaphoreHandle_t xSemaphoreLedR;
 SemaphoreHandle_t xSemaphoreLedY;
 //y = 2 r = 1
 void btn_callback(uint gpio, uint32_t events) {
-  if(events == GPIO_IRQ_EDGE_FALL){
-    if(gpio == BTN_PIN_Y){
-      btn = 2;
+    int btn;
+    if(events == GPIO_IRQ_EDGE_FALL){
+        if(gpio == BTN_PIN_Y){
+            btn = 2;
+        }
+        if(gpio == BTN_PIN_R){
+            btn = 1;
+        }
     }
-    if(gpio == BTN_PIN_R){
-      btn = 1;
+    if(btn != 0){
+        xQueueSendFromISR(xQueueBtn, &btn, 0);
     }
-  }
-  if(btn != 0){
-    xQueueSendFromISR(xQueueBtn, &btn, 0);
-  }
 }
 
 void led_1_task(void *p) {
