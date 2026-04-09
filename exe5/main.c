@@ -75,7 +75,6 @@ void led_2_task(void *p) {
 
     int ligado = 0;
     while (true) {
-        int btn;
         if(xSemaphoreTake(xSemaphoreLedY, pdMS_TO_TICKS(500)) == pdTRUE){
             ligado = !ligado;
         }
