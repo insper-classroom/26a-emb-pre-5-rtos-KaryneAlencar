@@ -77,29 +77,30 @@ void btn_task(void *p) {
     gpio_set_dir(BTN_PIN_R, GPIO_IN);
     gpio_pull_up(BTN_PIN_R);
 
-    int delay = 0;
+    int delay_r = 0;
+    int delay_g = 0;
     int btn;
     while (true) {
         if (xQueueReceive( xQueueBtn, &btn, pdMS_TO_TICKS(100))) {
 
             if(btn == 2){
-                if (delay < 1000) {
-                    delay += 100;
+                if (delay_g < 1000) {
+                    delay_g += 100;
                 } else {
-                    delay = 100;
+                    delay_g = 100;
                 }
-                printf("delay btn %d \n", delay);
-                xQueueSend(xQueueLedG, &delay, 0);
+                printf("delay btn %d \n", delay_g);
+                xQueueSend(xQueueLedG, &delay_g, 0);
             }
 
             if(btn == 1){
-                if (delay < 1000) {
-                    delay += 100;
+                if (delay_r < 1000) {
+                    delay_r += 100;
                 } else {
-                    delay = 100;
+                    delay_r = 100;
                 }
-                printf("delay btn %d \n", delay);
-                xQueueSend(xQueueLedR, &delay, 0);
+                printf("delay btn %d \n", delay_r);
+                xQueueSend(xQueueLedR, &delay_r, 0);
             }
             
         }
