@@ -29,7 +29,7 @@ SemaphoreHandle_t xSemaphoreLedR;
 SemaphoreHandle_t xSemaphoreLedY;
 //y = 2 r = 1
 void btn_callback(uint gpio, uint32_t events) {
-    int btn;
+    int btn = 0;
     if(events == GPIO_IRQ_EDGE_FALL){
         if(gpio == BTN_PIN_Y){
             btn = 2;
