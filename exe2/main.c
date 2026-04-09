@@ -18,7 +18,7 @@ SemaphoreHandle_t xSemaphore_g;
 QueueHandle_t xQueueBtn;
 
 void btn_callback(uint gpio, uint32_t events) {
-  int btn;
+  int btn = 0;
   if(events == 0x4){
     if(gpio == BTN_PIN_G){
       btn = 1;
@@ -94,14 +94,14 @@ int main() {
   xSemaphore_r = xSemaphoreCreateBinary();
   xSemaphore_g = xSemaphoreCreateBinary();
 
-  xTaskCreate(led_1_task, "LED_Task 1", 256, NULL, 1, NULL);
-  xTaskCreate(btn_task, "BTN_Task", 256, NULL, 1, NULL);
-  xTaskCreate(led_2_task, "LED_Task 2", 256, NULL, 1, NULL);
-  
+  xQueueBtn = xQueueCreate(32, sizeof(int) );
+
   gpio_set_irq_enabled_with_callback(BTN_PIN_R, GPIO_IRQ_EDGE_FALL, true, &btn_callback);
   gpio_set_irq_enabled(BTN_PIN_G, GPIO_IRQ_EDGE_FALL, true);
 
-  xQueueBtn = xQueueCreate(32, sizeof(int) );
+  xTaskCreate(led_1_task, "LED_Task 1", 256, NULL, 1, NULL);
+  xTaskCreate(btn_task, "BTN_Task", 256, NULL, 1, NULL);
+  xTaskCreate(led_2_task, "LED_Task 2", 256, NULL, 1, NULL);
 
   vTaskStartScheduler();
 
